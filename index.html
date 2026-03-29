@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Galaxy Night Club</title>
+<link rel="stylesheet" href="style.css?v=20260329-3">
+<link rel="icon" type="image/png" href="image.png">
+</head>
+<body>
+<div id="loginScreen" class="login-screen">
+<div class="login-card">
+<form onsubmit="login(event)">
+<p class="eyebrow">Connexion staff</p>
+<h1>Galaxy Access</h1>
+<label for="username">Email</label>
+<input id="username" type="email" placeholder="Exemple : email@galaxynightclub.com">
+<label for="password">Mot de passe</label>
+<input id="password" type="password" placeholder="Mot de passe">
+<button type="submit" class="primary-btn login-btn">Se connecter</button>
+<p id="loginMsg" class="status-msg"></p>
+</form>
+</div>
+</div>
+
+<div id="appShell" class="app-shell hidden">
+<aside class="sidebar">
+<div>
+<div class="brand">
+<h2>Galaxy Night Club</h2>
+<div class="welcome-inline">
+<span class="welcome-wave">👋</span>
+<span id="welcomeText">Salut</span>
+</div>
+</div>
+<nav class="menu">
+<button class="nav-btn active" data-page="dashboard" onclick="show('dashboard')">Dashboard</button>
+<button class="nav-btn" data-page="pointage" onclick="show('pointage')">Pointeuse</button>
+<button class="nav-btn" data-page="planning" onclick="show('planning')">Planning</button>
+<button class="nav-btn" data-page="annonces" onclick="show('annonces')">Annonces</button>
+<button class="nav-btn" data-page="docs" onclick="show('docs')">Documents</button>
+<button id="pointagesNav" class="nav-btn hidden" data-page="pointages" onclick="show('pointages')">Pointages</button>
+<button id="staffNav" class="nav-btn hidden" data-page="staff" onclick="show('staff')">Gestion staff</button>
+<button id="logsNav" class="nav-btn hidden" data-page="logs" onclick="show('logs')">Logs admin</button>
+<button id="archivesNav" class="nav-btn hidden" data-page="archives" onclick="show('archives')">Archives</button>
+</nav>
+</div>
+<div class="sidebar-bottom">
+<div class="theme-panel">
+<span class="theme-label">Theme</span>
+<div class="theme-toggle">
+<button type="button" id="themeLightBtn" class="theme-icon-btn" onclick="changeTheme('light')" aria-label="Mode lumineux">☀️</button>
+<button type="button" id="themeDarkBtn" class="theme-icon-btn" onclick="changeTheme('dark')" aria-label="Mode sombre">🌙</button>
+</div>
+</div>
+<button class="logout-btn" onclick="logout()">Deconnexion</button>
+</div>
+</aside>
+
+<main class="content">
+<button id="mobileMenuBtn" class="mobile-menu-btn" type="button" onclick="toggleMobileMenu()">Menu</button>
+<div id="urgentBanner" class="urgent-banner hidden"></div>
+<section id="dashboard" class="page hero">
+<div class="hero-copy">
+<p class="eyebrow">Bienvenue</p>
+<h1>Galaxy Night Club</h1>
+<p id="dashboardText" class="lead">Ton espace interne est pret.</p>
+</div>
+
+<div class="stats-grid dashboard-top-grid">
+<article class="stat-card card">
+<span class="stat-label">Connectes</span>
+<strong id="connectedStaffCount">0</strong>
+<p>Staff actuellement connecte ou actif sur le club.</p>
+</article>
+<article class="stat-card card">
+<span class="stat-label">Pointages jour</span>
+<strong id="todayPointageCount">0</strong>
+<p>Pointages enregistres aujourd'hui.</p>
+</article>
+<article class="stat-card card">
+<span class="stat-label">Absences</span>
+<strong id="todayAbsenceCount">0</strong>
+<p>Absences ou manques du jour a surveiller.</p>
+</article>
+<article class="stat-card card">
+<span class="stat-label">Planning</span>
+<strong id="todayPlanningCount">0</strong>
+<p>Services planifies pour aujourd'hui.</p>
+</article>
+</div>
+
+<div class="dashboard-info-grid dashboard-spotlight-grid">
+<article class="card spotlight-card">
+<p class="eyebrow">Alertes</p>
+<h2 class="dashboard-mini-title">A suivre maintenant</h2>
+<div id="dashboardAlertsList" class="dashboard-alert-list"></div>
+</article>
+<article class="card spotlight-card">
+<p class="eyebrow">Dernier pointage</p>
+<h2 class="dashboard-mini-title">Activite recente</h2>
+<div id="dashboardLastPointage" class="dashboard-last-pointage"></div>
+</article>
+<article class="card spotlight-card">
+<p class="eyebrow">Annonce du jour</p>
+<h2 class="dashboard-mini-title">Message interne</h2>
+<div id="dashboardAnnouncementPreview" class="dashboard-announcement-preview"></div>
+</article>
+<article class="card spotlight-card">
+<p class="eyebrow">Acces rapide</p>
+<h2 class="dashboard-mini-title">Raccourcis</h2>
+<div class="dashboard-shortcuts">
+<button class="secondary-btn shortcut-btn" type="button" onclick="show('pointage')">Pointer</button>
+<button class="secondary-btn shortcut-btn" type="button" onclick="show('planning')">Planning</button>
+<button class="secondary-btn shortcut-btn" type="button" onclick="show('annonces')">Annonces</button>
+<button class="secondary-btn shortcut-btn" type="button" onclick="show('docs')">Documents</button>
+<button id="dashboardStaffShortcut" class="secondary-btn shortcut-btn hidden" type="button" onclick="show('staff')">Staff</button>
+<button id="dashboardLogsShortcut" class="secondary-btn shortcut-btn hidden" type="button" onclick="show('logs')">Logs</button>
+</div>
+</article>
+</div>
+
+<div class="dashboard-info-grid dashboard-ops-grid">
+<article class="card spotlight-card">
+<p class="eyebrow">Supervision</p>
+<h2 class="dashboard-mini-title">Absents et retards</h2>
+<div id="dashboardOpsList" class="dashboard-alert-list"></div>
+</article>
+<article class="card spotlight-card">
+<p class="eyebrow">A venir</p>
+<h2 class="dashboard-mini-title">Prochaines prises de service</h2>
+<div id="dashboardUpcomingList" class="dashboard-alert-list"></div>
+</article>
+</div>
+
+<div class="dashboard-panel card compact-dashboard">
+<p class="eyebrow">Organisation</p>
+<h2 class="dashboard-subtitle">Hierarchie interne du club</h2>
+
+<div class="dashboard-groups">
+<section class="dashboard-group">
+<button class="dashboard-group-toggle" type="button" onclick="toggleDashboardGroup('direction')">
+<span>👑 Direction</span>
+<span id="directionCount" class="group-count">1 profil</span>
+</button>
+<div id="dashboard-group-direction" class="dashboard-group-body hidden">
+<div class="staff-cards-grid hierarchy-card-grid">
+<article class="person-card hierarchy-person-card" data-person="adrian" onclick="showStaffCard('adrian')">
+<img id="photo-adrian" src="photos/adrian.png" alt="Adrian" class="person-photo hierarchy-photo" onerror="this.onerror=null;this.src='image.png'">
+<strong>Adrian</strong>
+<span class="dept-badge">Patron</span>
+<p id="card-description-adrian">Direction generale du Galaxy Night Club.</p>
+</article>
+<article class="person-card hierarchy-person-card" data-person="grace" onclick="showStaffCard('grace')">
+<img id="photo-grace" src="photos/grace.png" alt="Grace" class="person-photo hierarchy-photo" onerror="this.onerror=null;this.src='image.png'">
+<strong>Grace</strong>
+<span class="dept-badge">Responsable bar</span>
+<p id="card-description-grace">Gestion du pole bar et de l'equipe service.</p>
+</article>
+<article class="person-card hierarchy-person-card" data-person="logan" onclick="showStaffCard('logan')">
+<img id="photo-logan" src="photos/logan.png" alt="Logan" class="person-photo hierarchy-photo" onerror="this.onerror=null;this.src='image.png'">
+<strong>Logan</strong>
+<span class="dept-badge">Responsable securite</span>
+<p id="card-description-logan">Gestion de la securite et du controle interne.</p>
+</article>
+</div>
+<div id="directionExtraCards" class="staff-cards-grid hierarchy-card-grid extra-staff-grid hidden"></div>
+<div id="directionExtraPanels" class="extra-staff-panels hidden"></div>
+<div id="staff-panel-adrian" class="staff-detail-panel hidden">
+<div class="dashboard-mini-grid">
+<article class="mini-info-card editable-card"><strong>📸 Photo</strong><p class="section-text">Ajoute une photo partagee pour cette fiche.</p><p class="section-text">Les responsables peuvent envoyer une image partagee sans republier le site.</p><button class="secondary-btn save-section-btn" type="button" onclick="openPhotoPicker('adrian')">Choisir une photo</button><p id="photo-upload-msg-adrian" class="save-msg"></p></article>
+<article class="mini-info-card editable-card"><strong>📝 Informations</strong><textarea id="adrian_infosContent" class="mini-editor">Direction generale, gestion du club et supervision complete.</textarea><button class="secondary-btn save-section-btn" onclick="saveSectionContent('adrian_infosContent')">Enregistrer</button></article>
+<article class="mini-info-card editable-card"><strong>📞 Numeros</strong><textarea id="adrian_numerosContent" class="mini-editor">Numero direction, urgence, fournisseurs, contacts internes.</textarea><button class="secondary-btn save-section-btn" onclick="saveSectionContent('adrian_numerosContent')">Enregistrer</button></article>
+<article class="mini-info-card editable-card"><strong>🎖 Grade</strong><textarea id="adrian_gradeContent" class="mini-editor">Patron du club</textarea><button class="secondary-btn save-section-btn" onclick="saveSectionContent('adrian_gradeContent')">Enregistrer</button></article>
+<article class="mini-info-card editable-card"><strong>🧭 Role</strong><textarea id="adrian_roleContent" class="mini-editor">Controle l'ensemble des poles, de l'equipe et des decisions internes.</textarea><button class="secondary-btn save-section-btn" onclick="saveSectionContent('adrian_roleContent')">Enregistrer</button></article>
+<article class="mini-info-card editable-card"><strong>📌 Notes</strong><textarea id="adrian_notesContent" class="mini-editor">Notes privees sur la direction et les priorites.</textarea><button class="secondary-btn save-section-btn" onclick="saveSectionContent('adrian_notesContent')">Enregistrer</button></article>
+<article class="mini-info-card editable-card"><strong>🔐 Acces</strong><textarea id="adrian_accesContent" class="mini-editor">Acces complet au site et a tous les outils.</textarea><button class="secondary-btn save-section-btn" onclick="saveSectionContent('adrian_accesContent')">Enregistrer</button></article>
+</div>
+</div>
+<div id="staff-panel-grace" class="staff-detail-panel hidden">
+<div class="dashboard-mini-grid">
+<article class="mini-info-card editable-card"><strong>📸 Photo</strong><p class="section-text">Ajoute une photo partagee pour cette fiche.</p><p class="section-text">Les responsables peuvent envoyer une image partagee sans republier le site.</p><button class="secondary-btn save-section-btn" type="button" onclick="openPhotoPicker('grace')">Choisir une photo</button><p id="photo-upload-msg-grace" class="save-msg"></p></article>
+<article class="mini-info-card editable-card"><strong>📝 Informations</strong><textarea id="grace_infosContent" class="mini-editor">Organisation du bar, service, stock et coordination de l'equipe.</textarea><button class="secondary-btn save-section-btn" onclick="saveSectionContent('grace_infosContent')">Enregistrer</button></article>
+<article class="mini-info-card editable-card"><strong>📞 Numeros</strong><textarea id="grace_numerosContent" class="mini-editor">Contacts bar, fournisseurs et urgence service.</textarea><button class="secondary-btn save-section-btn" onclick="saveSectionContent('grace_numerosContent')">Enregistrer</button></article>
+<article class="mini-info-card editable-card"><strong>🎖 Grade</strong><textarea id="grace_gradeContent" class="mini-editor">Responsable bar</textarea><button class="secondary-btn save-section-btn" onclick="saveSectionContent('grace_gradeContent')">Enregistrer</button></article>
+<article class="mini-info-card editable-card"><strong>🧭 Role</strong><textarea id="grace_roleContent" class="mini-editor">Supervise les barmen et barmaids, le service et les besoins du bar.</textarea><button class="secondary-btn save-section-btn" onclick="saveSectionContent('grace_roleContent')">Enregistrer</button></article>
+<article class="mini-info-card editable-card"><strong>📌 Notes</strong><textarea id="grace_notesContent" class="mini-editor">Notes internes du pole bar.</textarea><button class="secondary-btn save-section-btn" onclick="saveSectionContent('grace_notesContent')">Enregistrer</button></article>
+<article class="mini-info-card editable-card"><strong>🔐 Acces</strong><textarea id="grace_accesContent" class="mini-editor">Acces gestion bar, equipe et outils du club.</textarea><button class="secondary-btn save-section-btn" onclick="saveSectionContent('grace_accesContent')">Enregistrer</button></article>
+</div>
+</div>
+<div id="staff-panel-logan" class="staff-detail-panel hidden">
+<div class="dashboard-mini-grid">
+<article class="mini-info-card editable-card"><strong>📸 Photo</strong><p class="section-text">Ajoute une photo partagee pour cette fiche.</p><p class="section-text">Les responsables peuvent envoyer une image partagee sans republier le site.</p><button class="secondary-btn save-section-btn" type="button" onclick="openPhotoPicker('logan')">Choisir une photo</button><p id="photo-upload-msg-logan" class="save-msg"></p></article>
+<article class="mini-info-card editable-card"><strong>📝 Informations</strong><textarea id="logan_infosContent" class="mini-editor">Gestion des agents, acces, ronde et supervision securite.</textarea><button class="secondary-btn save-section-btn" onclick="saveSectionContent('logan_infosContent')">Enregistrer</button></article>
+<article class="mini-info-card editable-card"><strong>📞 Numeros</strong><textarea id="logan_numerosContent" class="mini-editor">Contacts securite, urgence et soutien externe.</textarea><button class="secondary-btn save-section-btn" onclick="saveSectionContent('logan_numerosContent')">Enregistrer</button></article>
+<article class="mini-info-card editable-card"><strong>🎖 Grade</strong><textarea id="logan_gradeContent" class="mini-editor">Responsable securite</textarea><button class="secondary-btn save-section-btn" onclick="saveSectionContent('logan_gradeContent')">Enregistrer</button></article>
+<article class="mini-info-card editable-card"><strong>🧭 Role</strong><textarea id="logan_roleContent" class="mini-editor">Supervise la securite du club, les agents et les incidents.</textarea><button class="secondary-btn save-section-btn" onclick="saveSectionContent('logan_roleContent')">Enregistrer</button></article>
+<article class="mini-info-card editable-card"><strong>📌 Notes</strong><textarea id="logan_notesContent" class="mini-editor">Notes internes du pole securite.</textarea><button class="secondary-btn save-section-btn" onclick="saveSectionContent('logan_notesContent')">Enregistrer</button></article>
+<article class="mini-info-card editable-card"><strong>🔐 Acces</strong><textarea id="logan_accesContent" class="mini-editor">Acces gestion securite, equipe et suivi interne.</textarea><button class="secondary-btn save-section-btn" onclick="saveSectionContent('logan_accesContent')">Enregistrer</button></article>
+</div>
+</div>
+</div>
+</section>
+
+<section class="dashboard-group">
+<button class="dashboard-group-toggle bar-group" type="button" onclick="toggleDashboardGroup('bar')">
+<span>🍸 Pole bar</span>
+<span id="barCount" class="group-count">0 profil</span>
+</button>
+<div id="dashboard-group-bar" class="dashboard-group-body hidden">
+<div id="barExtraCards" class="staff-cards-grid hierarchy-card-grid extra-staff-grid hidden"></div>
+<div id="barExtraPanels" class="extra-staff-panels hidden"></div>
+</div>
+</section>
+
+<section class="dashboard-group">
+<button class="dashboard-group-toggle security-group" type="button" onclick="toggleDashboardGroup('security')">
+<span>🛡 Pole securite</span>
+<span id="securityCount" class="group-count">0 profil</span>
+</button>
+<div id="dashboard-group-security" class="dashboard-group-body hidden">
+<div id="securityExtraCards" class="staff-cards-grid hierarchy-card-grid extra-staff-grid hidden"></div>
+<div id="securityExtraPanels" class="extra-staff-panels hidden"></div>
+</div>
+</section>
+
+<section class="dashboard-group">
+<button class="dashboard-group-toggle dj-group" type="button" onclick="toggleDashboardGroup('dj')">
+<span>🎧 Pole DJ</span>
+<span id="djCount" class="group-count">0 profil</span>
+</button>
+<div id="dashboard-group-dj" class="dashboard-group-body hidden">
+<div id="djExtraCards" class="staff-cards-grid hierarchy-card-grid extra-staff-grid hidden"></div>
+<div id="djExtraPanels" class="extra-staff-panels hidden"></div>
+</div>
+</section>
+
+<section class="dashboard-group">
+<button class="dashboard-group-toggle dancer-group" type="button" onclick="toggleDashboardGroup('dance')">
+<span>💃 Pole danseur / danseuse</span>
+<span id="danceCount" class="group-count">0 profil</span>
+</button>
+<div id="dashboard-group-dance" class="dashboard-group-body hidden">
+<div id="danceExtraCards" class="staff-cards-grid hierarchy-card-grid extra-staff-grid hidden"></div>
+<div id="danceExtraPanels" class="extra-staff-panels hidden"></div>
+</div>
+</section>
+</div>
+</div>
+</section>
+
+<section id="presence" class="page">
+<div class="card">
+<p class="eyebrow">Organisation</p>
+<h1>Presence</h1>
+<p id="presencePageText" class="section-text">Chaque membre confirme sa presence ou son absence pour aujourd'hui.</p>
+<div class="form-grid">
+<div>
+<label for="presenceDate">Date</label><input id="presenceDate" type="date" onchange="renderPresence()">
+<label for="presenceTargetUser">Employe</label><select id="presenceTargetUser"></select>
+<label for="presenceStatus">Reponse</label>
+<select id="presenceStatus">
+<option value="present">Present</option>
+<option value="absent">Absent</option>
+<option value="pending">Pas encore repondu</option>
+</select>
+<label for="presenceNote">Note</label><textarea id="presenceNote" class="mini-editor" placeholder="Raison, heure d'arrivee, remarque utile"></textarea>
+<button class="primary-btn" type="button" onclick="submitPresence()">Enregistrer la presence</button>
+<p id="presenceMsg" class="save-msg"></p>
+</div>
+<div class="presence-side-stack">
+<div class="info-panel">
+<strong>Rappel du jour</strong>
+<p id="presenceReminderText">Les reponses du jour sont suivies ici pour toute l'equipe.</p>
+</div>
+<div class="info-panel">
+<strong>Mon statut</strong>
+<p id="presenceSelfStatus">Aucune reponse enregistree pour le moment.</p>
+</div>
+</div>
+</div>
+<div class="dashboard-info-grid presence-summary-grid">
+<article class="info-panel pointage-total-panel">
+<strong>Presents</strong>
+<p id="presencePresentCount">0</p>
+</article>
+<article class="info-panel pointage-total-panel">
+<strong>Absents</strong>
+<p id="presenceAbsentCount">0</p>
+</article>
+<article class="info-panel pointage-total-panel">
+<strong>En attente</strong>
+<p id="presencePendingCount">0</p>
+</article>
+</div>
+<div id="presenceList" class="staff-list"></div>
+</div>
+</section>
+
+<section id="planning" class="page">
+<div class="card">
+<p class="eyebrow">Organisation</p>
+<h1>Planning</h1>
+<p class="section-text">Consulte les services prevus et gere les prises de poste de chaque pole.</p>
+<div class="view-toggle-row">
+<button id="planningWeekBtn" class="secondary-btn view-toggle-btn active-view-btn" type="button" onclick="setPlanningView('week')">Vue semaine</button>
+<button id="planningMonthBtn" class="secondary-btn view-toggle-btn" type="button" onclick="setPlanningView('month')">Vue mois</button>
+</div>
+<div id="planningFormPanel" class="form-grid">
+<div>
+<label for="planningEmployee">Employe</label><input id="planningEmployee" type="text" list="planningStaffList" placeholder="Exemple : Grace">
+<datalist id="planningStaffList"></datalist>
+<label for="planningDepartment">Pole</label><select id="planningDepartment"><option value="bar">Bar</option><option value="security">Securite</option><option value="dj">DJ</option><option value="dance">Danseur / danseuse</option></select>
+<label for="planningDate">Date</label><input id="planningDate" type="date">
+<label for="planningStart">Debut</label><input id="planningStart" type="time">
+<label for="planningEnd">Fin</label><input id="planningEnd" type="time">
+<label for="planningNote">Note</label><textarea id="planningNote" class="mini-editor" placeholder="Brief, tenue, poste ou consigne"></textarea>
+<button id="planningSubmitBtn" class="primary-btn" onclick="submitPlanningEntry()">Ajouter au planning</button>
+<button id="planningCancelBtn" class="secondary-btn hidden" onclick="cancelPlanningEdit()">Annuler la modification</button>
+<p id="planningMsg" class="save-msg"></p>
+<div id="planningEditHint" class="info-box hidden"></div>
+</div>
+<div>
+<div class="info-panel">
+<strong>Vue du jour</strong>
+<p id="planningScopeText">Chaque responsable voit et gere les services de son perimetre.</p>
+</div>
+<div class="info-panel">
+<strong>Service suivant</strong>
+<p id="nextPlanningInfo">Aucun service programme pour le moment.</p>
+</div>
+</div>
+</div>
+<div class="filters-grid">
+<div><label for="planningFilterDate">Filtre date</label><input id="planningFilterDate" type="date" onchange="renderPlanning()"></div>
+<div><label for="planningFilterDepartment">Filtre pole</label><select id="planningFilterDepartment" onchange="renderPlanning()"><option value="">Tous</option><option value="bar">Bar</option><option value="security">Securite</option><option value="dj">DJ</option><option value="dance">Danseur / danseuse</option></select></div>
+</div>
+<div id="planningCalendarSummary" class="planning-calendar-summary"></div>
+<div id="planningList" class="planning-list"></div>
+</div>
+</section>
+
+<section id="annonces" class="page">
+<div class="card">
+<p class="eyebrow">Communication</p>
+<h1>Annonces internes</h1>
+<p class="section-text">Diffuse une note importante visible par tout le staff des la connexion.</p>
+<div id="announcementEditorPanel" class="form-grid">
+<div>
+<label for="announcementTitle">Titre</label><input id="announcementTitle" type="text" placeholder="Exemple : Brief samedi soir">
+<label for="announcementPriority">Priorite</label><select id="announcementPriority"><option value="normal">Normale</option><option value="important">Importante</option><option value="urgent">Urgente</option></select>
+<label for="announcementUntil">Visible jusqu'au</label><input id="announcementUntil" type="date">
+<label class="checkbox-row"><input id="announcementRequireAck" type="checkbox"> Demander un accuse de lecture</label>
+<label for="announcementBody">Message</label><textarea id="announcementBody" class="mini-editor" placeholder="Annonce du jour, consigne, note importante"></textarea>
+<button id="announcementSubmitBtn" class="primary-btn" onclick="submitAnnouncement()">Publier l'annonce</button>
+<button id="announcementCancelBtn" class="secondary-btn hidden" onclick="cancelAnnouncementEdit()">Annuler la modification</button>
+<p id="announcementMsg" class="save-msg"></p>
+</div>
+<div class="announcement-side-stack">
+<div class="info-panel">
+<strong>Visibilite</strong>
+<p id="announcementScopeText">Les annonces importantes remontent aussi sur le dashboard.</p>
+</div>
+<div class="info-panel">
+<strong>Suivi lecture</strong>
+<p id="announcementReadScope">Tu peux demander un accuse de lecture pour suivre qui a lu chaque annonce.</p>
+</div>
+</div>
+</div>
+<div id="announcementsList" class="announcement-list"></div>
+</div>
+</section>
+
+<section id="pointage" class="page">
+<div class="card">
+<p class="eyebrow">Gestion</p>
+<h1>Pointeuse</h1>
+<p class="section-text">Le patron peut pointer tout le monde. Un responsable de pole ne pointe que son equipe. Un staff ne pointe que lui-meme.</p>
+<div class="form-grid compact-grid">
+<div><label for="nom">Nom</label><input id="nom" type="text" placeholder="Nom du membre du staff"></div>
+<div><label for="pointageStatus">Statut</label><select id="pointageStatus"><option value="en-service">En service</option><option value="absent">Absent</option><option value="fin-service">Fin de service</option></select></div>
+</div>
+<div class="form-grid compact-grid">
+<div><label for="heure-entree">Heure d'arrivee</label><input id="heure-entree" type="time"></div>
+<div><label for="heure-sortie">Heure de sortie</label><input id="heure-sortie" type="time"></div>
+</div>
+<button class="primary-btn" onclick="savePointage()">Enregistrer</button>
+<p id="saveMsg" class="save-msg"></p>
+<div id="pointageHint" class="info-box"></div>
+</div>
+</section>
+
+<section id="docs" class="page">
+<div class="card">
+<p class="eyebrow">Reglement</p>
+<h1>Documents internes</h1>
+<div class="docs-accordion">
+<article class="doc-card doc-accordion-item">
+<button class="doc-toggle" type="button" onclick="toggleDocSection('reglement')"><span>📜 Reglement general</span><span class="doc-toggle-icon">+</span></button>
+<div id="doc-section-reglement" class="doc-section-body hidden"><textarea id="docs_reglementContent" class="mini-editor docs-editor">Chaque membre du staff doit adopter une attitude professionnelle, respecter la hierarchie, proteger l'image du club et garder une discretion totale sur l'interne. La ponctualite, la tenue correcte, le respect des clients et le calme en service sont obligatoires. Tout comportement irrespectueux, absence non justifiee, conflit visible ou negligence peut entrainer un rappel, un avertissement ou une sanction selon la gravite.</textarea><button class="secondary-btn save-section-btn docs-save-btn" onclick="saveSectionContent('docs_reglementContent')">Enregistrer</button></div>
+</article>
+<article class="doc-card doc-accordion-item">
+<button class="doc-toggle" type="button" onclick="toggleDocSection('ouverture')"><span>🔓 Ouverture</span><span class="doc-toggle-icon">+</span></button>
+<div id="doc-section-ouverture" class="doc-section-body hidden"><textarea id="docs_ouvertureContent" class="mini-editor docs-editor">Arriver en avance, faire le brief d'equipe, verifier les acces, les radios, les postes, les stocks, la caisse et le materiel necessaire. Signaler tout manque ou probleme avant l'ouverture au public. Chaque responsable confirme que son pole est pret avant le debut du service.</textarea><button class="secondary-btn save-section-btn docs-save-btn" onclick="saveSectionContent('docs_ouvertureContent')">Enregistrer</button></div>
+</article>
+<article class="doc-card doc-accordion-item">
+<button class="doc-toggle" type="button" onclick="toggleDocSection('fermeture')"><span>🔒 Fermeture</span><span class="doc-toggle-icon">+</span></button>
+<div id="doc-section-fermeture" class="doc-section-body hidden"><textarea id="docs_fermetureContent" class="mini-editor docs-editor">Cloturer le service proprement, verifier les pointages, ranger le poste, controler les acces et faire remonter les incidents ou anomalies. Aucun depart ne se fait sans validation du responsable ou de la direction si un probleme reste ouvert. Le club doit etre laisse propre, securise et pret pour la prochaine prise de service.</textarea><button class="secondary-btn save-section-btn docs-save-btn" onclick="saveSectionContent('docs_fermetureContent')">Enregistrer</button></div>
+</article>
+<article class="doc-card doc-accordion-item">
+<button class="doc-toggle" type="button" onclick="toggleDocSection('bar')"><span>🍸 Rappel pole bar</span><span class="doc-toggle-icon">+</span></button>
+<div id="doc-section-bar" class="doc-section-body hidden"><textarea id="docs_barContent" class="mini-editor docs-editor">Le pole bar doit assurer un service rapide, propre et constant. Les stocks, la caisse, l'hygiene, le materiel et l'etat du comptoir doivent etre suivis en continu. Toute rupture, tension client ou anomalie de service doit etre remontee immediatement a Grace ou a la direction.</textarea><button class="secondary-btn save-section-btn docs-save-btn" onclick="saveSectionContent('docs_barContent')">Enregistrer</button></div>
+</article>
+<article class="doc-card doc-accordion-item">
+<button class="doc-toggle" type="button" onclick="toggleDocSection('security')"><span>🛡 Rappel pole securite</span><span class="doc-toggle-icon">+</span></button>
+<div id="doc-section-security" class="doc-section-body hidden"><textarea id="docs_securityContent" class="mini-editor docs-editor">Le pole securite assure le filtrage, la surveillance, la gestion des acces et la prevention des incidents. Chaque agent doit rester vigilant, garder son calme, appliquer les consignes sans abus et faire remonter toute situation sensible a Logan ou a la direction. Aucun incident ne doit etre laisse sans trace ou sans compte rendu clair.</textarea><button class="secondary-btn save-section-btn docs-save-btn" onclick="saveSectionContent('docs_securityContent')">Enregistrer</button></div>
+</article>
+<article class="doc-card doc-accordion-item">
+<button class="doc-toggle" type="button" onclick="toggleDocSection('dj')"><span>🎧 Rappel pole DJ</span><span class="doc-toggle-icon">+</span></button>
+<div id="doc-section-dj" class="doc-section-body hidden"><textarea id="docs_djContent" class="mini-editor docs-editor">Le pole DJ doit assurer l'ambiance sonore, les transitions, le respect du programme et la coordination avec le reste du club. La gestion du son, des timings et des changements de set doit rester propre, maitrisee et adaptee a l'image du Galaxy. Tout retard, absence ou changement majeur doit etre remonte immediatement a la direction.</textarea><button class="secondary-btn save-section-btn docs-save-btn" onclick="saveSectionContent('docs_djContent')">Enregistrer</button></div>
+</article>
+<article class="doc-card doc-accordion-item">
+<button class="doc-toggle" type="button" onclick="toggleDocSection('dance')"><span>💃 Rappel pole danseur / danseuse</span><span class="doc-toggle-icon">+</span></button>
+<div id="doc-section-dance" class="doc-section-body hidden"><textarea id="docs_danceContent" class="mini-editor docs-editor">Le pole danseur / danseuse assure la presence scene, l'image, l'animation et le respect du cadre fixe par le club. Les prestations doivent rester propres, coordonnees, ponctuelles et en accord avec l'ambiance voulue. Toute absence, retard ou changement de planning doit etre remonte immediatement a la direction.</textarea><button class="secondary-btn save-section-btn docs-save-btn" onclick="saveSectionContent('docs_danceContent')">Enregistrer</button></div>
+</article>
+<article class="doc-card doc-accordion-item">
+<button class="doc-toggle" type="button" onclick="toggleDocSection('managers')"><span>👔 Rappel managers</span><span class="doc-toggle-icon">+</span></button>
+<div id="doc-section-managers" class="doc-section-body hidden"><textarea id="docs_managersContent" class="mini-editor docs-editor">Adrian, Grace et Logan peuvent mettre a jour ces procedures, transmettre les consignes et corriger les informations selon les besoins du club. Le reste du staff consulte les documents mais ne les modifie pas. Toute consigne exceptionnelle doit etre ecrite de facon claire, courte et applicable immediatement.</textarea><button class="secondary-btn save-section-btn docs-save-btn" onclick="saveSectionContent('docs_managersContent')">Enregistrer</button></div>
+</article>
+</div>
+</div>
+</section>
+
+<section id="hierarchie" class="page">
+<div class="card">
+<p class="eyebrow">Organisation</p>
+<h1>Hierarchie</h1>
+<div class="team-grid">
+<article class="team-card"><span class="team-role">Direction</span><strong>Adrian</strong><p>Controle total sur tous les poles et sur l'ensemble du staff.</p></article>
+<article class="team-card"><span class="team-role">Responsable bar</span><strong>Grace</strong><p>Gere les barmen et barmaids, ainsi que leurs pointages et leurs comptes.</p></article>
+<article class="team-card"><span class="team-role">Responsable securite</span><strong>Logan</strong><p>Gere les agents de securite, leurs pointages et leur suivi.</p></article>
+</div>
+<div id="hierarchieDetails" class="hierarchy-list"></div>
+</div>
+</section>
+
+<section id="pointages" class="page">
+<div class="card">
+<p class="eyebrow">Supervision</p>
+<h1 id="pointagesTitle">Pointages</h1>
+<p id="pointagesText" class="section-text">Consulte les enregistrements disponibles dans ton perimetre.</p>
+<div class="filters-grid">
+<div><label for="filterEmployee">Filtre employe</label><input id="filterEmployee" type="text" placeholder="Exemple : Grace" oninput="renderPointages()"></div>
+<div><label for="filterPointageDate">Filtre date</label><input id="filterPointageDate" type="date" onchange="renderPointages()"></div>
+<div><label for="filterPointageFrom">Periode du</label><input id="filterPointageFrom" type="date" onchange="renderPointages()"></div>
+<div><label for="filterPointageTo">Periode au</label><input id="filterPointageTo" type="date" onchange="renderPointages()"></div>
+<div id="filterDepartmentWrap"><label for="filterDepartment">Filtre secteur</label><select id="filterDepartment" onchange="renderPointages()"><option value="">Tous</option><option value="bar">Bar</option><option value="security">Securite</option><option value="dj">DJ</option><option value="dance">Danseur / danseuse</option></select></div>
+<div><label for="filterStatus">Filtre statut</label><select id="filterStatus" onchange="renderPointages()"><option value="">Tous</option><option value="en-service">En service</option><option value="absent">Absent</option><option value="fin-service">Fin de service</option></select></div>
+</div>
+<div class="dashboard-info-grid pointage-summary-grid">
+<article class="info-panel pointage-total-panel">
+<strong>Total semaine</strong>
+<p id="pointageWeekTotal">0h00</p>
+</article>
+<article class="info-panel pointage-total-panel">
+<strong>Total mois</strong>
+<p id="pointageMonthTotal">0h00</p>
+</article>
+<article class="info-panel pointage-total-panel">
+<strong>Total periode</strong>
+<p id="pointagePeriodTotal">0h00</p>
+</article>
+<article class="info-panel pointage-total-panel">
+<strong>Heures supp estimees</strong>
+<p id="pointageOvertimeTotal">0h00</p>
+</article>
+<article id="pointageExportPanel" class="info-panel pointage-total-panel">
+<strong>Export</strong>
+<p>Genere un export PDF des pointages visibles.</p>
+<button class="secondary-btn" type="button" onclick="exportPointages()">Exporter</button>
+</article>
+</div>
+<div id="pointagesList" class="pointages-list"></div>
+<div id="pointagePersonDetail" class="pointage-person-detail hidden"></div>
+</div>
+</section>
+
+<section id="staff" class="page">
+<div class="card">
+<p class="eyebrow">Administration</p>
+<h1>Gestion du staff</h1>
+<p id="staffPageText" class="section-text">Ajoute, organise et supprime les comptes selon ton perimetre de gestion.</p>
+<div class="form-grid">
+<div>
+<label for="newDisplayName">Nom affiche</label><input id="newDisplayName" type="text" placeholder="Exemple : Mia">
+<label for="newEmail">Email</label><input id="newEmail" type="email" placeholder="Exemple : email@galaxynightclub.com">
+<label for="newDiscordId">Discord ID</label><input id="newDiscordId" type="text" placeholder="Exemple : 123456789012345678">
+<label for="newPassword">Mot de passe</label><input id="newPassword" type="text" placeholder="Mot de passe du compte">
+<label for="newDateJoined">Date d'entree</label><input id="newDateJoined" type="date">
+<label for="newRole">Role</label><select id="newRole"><option value="staff">Staff</option><option value="manager">Responsable</option></select>
+<label for="newDepartment">Secteur</label><select id="newDepartment"><option value="bar">Bar</option><option value="security">Securite</option><option value="dj">DJ</option><option value="dance">Danseur / danseuse</option></select>
+<label class="checkbox-row"><input id="newActive" type="checkbox" checked> Compte actif</label>
+<label class="checkbox-row"><input id="newMustChangePassword" type="checkbox"> Forcer le changement de mot de passe a la premiere connexion</label>
+<button id="staffSubmitBtn" class="primary-btn" onclick="submitStaffForm()">Ajouter le compte</button>
+<button id="staffCancelBtn" class="secondary-btn hidden" onclick="cancelEditStaff()">Annuler la modification</button>
+<p id="staffMsg" class="save-msg"></p>
+</div>
+<div class="staff-side-stack">
+<div class="info-panel"><strong>Perimetre</strong><p id="staffScopePanel">Le patron peut tout gerer. Un responsable ne peut gerer que les comptes de son secteur.</p></div>
+<div class="info-panel">
+<strong>Message identifiants</strong>
+<p id="staffCredentialsPreview">Le message de connexion du staff apparaitra ici apres creation ou sur la fiche du compte.</p>
+<button class="secondary-btn" type="button" onclick="copyLatestCredentials()">Copier le message</button>
+</div>
+<div id="ownerPasswordPanel" class="info-panel hidden password-panel">
+<strong>Mon adresse mail</strong>
+<label for="ownerNewEmail">Nouvelle adresse mail</label><input id="ownerNewEmail" type="email" placeholder="Nouvel email">
+<button class="secondary-btn" onclick="updateOwnEmail()">Changer mon adresse mail</button>
+<p id="ownerEmailMsg" class="save-msg"></p>
+<strong>Mon mot de passe</strong>
+<label for="ownerNewPassword">Nouveau mot de passe</label><input id="ownerNewPassword" type="text" placeholder="Nouveau mot de passe">
+<button class="secondary-btn" onclick="updateOwnPassword()">Changer mon mot de passe</button>
+<p id="ownerPasswordMsg" class="save-msg"></p>
+</div>
+<div id="firebaseSecurityPanel" class="info-panel hidden">
+<strong>Securite Firebase</strong>
+<p id="firebaseSecurityText">Copie ces regles dans Firebase Console pour bloquer les modifications cote serveur et garder un vrai acces responsables seulement.</p>
+<div class="rules-actions">
+<button class="secondary-btn" type="button" onclick="copyFirestoreRules()">Copier regles Firestore</button>
+<button class="secondary-btn" type="button" onclick="copyStorageRules()">Copier regles Storage</button>
+</div>
+<p id="firebaseSecurityMsg" class="save-msg"></p>
+</div>
+</div>
+</div>
+<div id="staffList" class="staff-list"></div>
+</div>
+</section>
+
+<section id="logs" class="page">
+<div class="card">
+<p class="eyebrow">Controle</p>
+<h1>Logs admin</h1>
+<p class="section-text">Retrouve les actions importantes faites sur le site, les documents et les comptes.</p>
+<div class="staff-actions logs-toolbar">
+<button class="secondary-btn" type="button" onclick="markAllLogsViewed()">Tout marquer vu</button>
+<button class="danger-btn" type="button" onclick="deleteViewedLogs()">Supprimer les vus</button>
+</div>
+<p id="logsMsg" class="save-msg"></p>
+<div id="logsList" class="logs-list"></div>
+</div>
+</section>
+
+<section id="archives" class="page">
+<div class="card">
+<p class="eyebrow">Historique</p>
+<h1>Archives</h1>
+<p class="section-text">Conserve les anciens comptes, les anciens pointages et les anciennes notes importantes.</p>
+<div class="dashboard-info-grid archive-grid">
+<article class="info-panel archive-panel">
+<strong>Anciens employes</strong>
+<div id="archivedStaffList" class="archive-list"></div>
+</article>
+<article class="info-panel archive-panel">
+<strong>Anciens pointages</strong>
+<div id="archivedPointagesList" class="archive-list"></div>
+</article>
+<article class="info-panel archive-panel">
+<strong>Anciennes notes</strong>
+<div id="archivedNotesList" class="archive-list"></div>
+</article>
+</div>
+</div>
+</section>
+</main>
+</div>
+
+<div id="forcePasswordModal" class="modal-overlay hidden">
+<div class="modal-card">
+<p class="eyebrow">Securite</p>
+<h2>Change ton mot de passe</h2>
+<p class="section-text">La direction a force un changement de mot de passe. Termine cette etape pour continuer.</p>
+<label for="forcedPasswordInput">Nouveau mot de passe</label>
+<input id="forcedPasswordInput" type="password" placeholder="Nouveau mot de passe">
+<label for="forcedPasswordConfirm">Confirmer le mot de passe</label>
+<input id="forcedPasswordConfirm" type="password" placeholder="Confirmation">
+<button class="primary-btn" type="button" onclick="submitForcedPasswordChange()">Valider</button>
+<p id="forcedPasswordMsg" class="save-msg"></p>
+</div>
+</div>
+
+<div id="presencePromptModal" class="modal-overlay hidden">
+<div class="modal-card">
+<p class="eyebrow">Presence</p>
+<h2>Presence ce soir ?</h2>
+<p class="section-text">Confirme rapidement ton statut pour ce soir. Si tu ne sais pas encore, tu peux le signaler et revenir plus tard.</p>
+<div class="presence-choice-grid">
+<button class="primary-btn" type="button" onclick="submitPresencePrompt('present')">Present</button>
+<button class="secondary-btn" type="button" onclick="submitPresencePrompt('absent')">Absent</button>
+<button class="secondary-btn neutral-choice-btn" type="button" onclick="submitPresencePrompt('pending')">Je ne sais pas encore</button>
+</div>
+<p id="presencePromptMsg" class="save-msg"></p>
+</div>
+</div>
+
+<input id="cloudinaryPhotoInput" type="file" accept="image/*" class="hidden" onchange="handlePhotoUpload(this.dataset.slot, event)">
+
+<script>
+if (window.location.protocol === "file:") {
+const script = document.createElement("script");
+script.src = "local-script.js?v=20260329-3";
+document.body.appendChild(script);
+} else {
+const script = document.createElement("script");
+script.type = "module";
+script.src = "script.js?v=20260329-3";
+document.body.appendChild(script);
+}
+</script>
+</body>
+</html>
